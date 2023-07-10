@@ -1,0 +1,18 @@
+@use "../../styles/abstracts/variables-colors" as colors;
+
+#countdown {
+  min-height: 100vh;
+  background-color: colors.$slate-7;
+
+  .container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .wrapper {
+      color: colors.$slate;
+      text-align: center;
+    }
+  }
+}
