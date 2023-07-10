@@ -1,0 +1,15 @@
+@use "../../styles/abstracts/mixins-text-sizes" as textSizes;
+
+.button {
+  border: 0;
+  padding: 7px 20px;
+  font-weight: 900;
+  @include textSizes.text-base;
+  transition: 0.1s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(0.98);
+    filter: brightness(0.9);
+  }
+}

@@ -1,13 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@font-face {
+  font-family: m12;
+  src: url("/assets/fonts/m12.ttf");
+}
 
-p, a {
-	font-size: 14px;
+p,
+a {
+  font-size: 14px;
 }
 
 * {
-	font-family: 'Inter';
-}
-
-* {
-  	font-family: "Inter", Arial, Helvetica, sans-serif;
+  letter-spacing: 2px;
+  font-family: m12, Arial, Helvetica, sans-serif;
 }

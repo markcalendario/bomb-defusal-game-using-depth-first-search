@@ -1,0 +1,37 @@
+@use "../styles/abstracts/variables-colors" as colors;
+@use "../styles/abstracts/mixins-text-sizes" as textSizes;
+@use "../styles/abstracts/mixins-screens" as screens;
+@use "../styles/layouts/responsive" as responsive;
+
+#welcome {
+  background-image: url("/assets/images/welcome.jpg");
+  min-height: 100vh;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  .container {
+    @include responsive.container;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .wrapper {
+      text-align: center;
+
+      & > * {
+        margin-top: 40px;
+      }
+
+      h1 {
+        font-weight: 900;
+        color: colors.$slate;
+        @include textSizes.text-3xl;
+
+        @include screens.tabletAndDesktop {
+          @include textSizes.text-5xl;
+        }
+      }
+    }
+  }
+}
