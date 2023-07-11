@@ -1,100 +1,98 @@
-const readline = require("readline");
-function readInput() {
-  const interface = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  return new Promise((resolve) =>
-    interface.question("", (answer) => {
-      interface.close();
-      resolve(answer);
-    })
-  );
-}
-
 class Node {
   left = null;
   right = null;
   tool = null;
 }
 
-async function generateDefuseKitTree(toolCount) {
+/**
+ * @param {number} toolCount - number of tools shall the tree generate
+ *
+ * This loop generates a random tree, where each node is a tool for defusing a bomb
+ * During generation, it uses a randomize legend for a cursor's movement.
+ * The cursor will determine where the node will be placed in a tree.
+ *
+ * Cursor Legend:
+ * 		0: Assign a Root
+ * 		1: Assign to Left Child
+ * 		2: Assign to Right Child
+ * 		3: Backtrack to previous node
+ *
+ * The legend 3, may forbid backtracking, iff:
+ * 		A. The children of the node to be backtracked are already populated
+ *
+ * Note: 0 is not included in random generation (Math.random),
+ * as it was already initialized for the root node.
+ *
+ * @returns {Node}
+ */
+
+export function generateDefuseKitTree(toolCount) {
   const stack = [];
   let assignedToolsCount = 0;
-  const mockedMovement = [1, 3, 2, 3, 2, 1];
 
-  // Immediately assign a tool for root node
+  // Immediately assign a tool for the root node
+
   const rootNode = new Node();
   rootNode.tool = assignTool();
-  assignedToolsCount = 1;
   stack.push(rootNode);
-
-  console.log(rootNode);
+  assignedToolsCount = 1;
+  console.log(rootNode.tool, "is assigned to left child of root node.");
+  console.log("Assigned Tools:", assignedToolsCount);
 
   while (toolCount !== assignedToolsCount) {
-    /**
-     * Generates randomly a movement for movementMap[]
-     * Legend:
-     * 		0: Root placed
-     * 		1: Left
-     * 		2: Right
-     * 		3: Back to previous node
-     *
-     * Note: 0 is not included in random generation, as it was already initialized
-     */
-
-    await readInput();
-
-    // const movement = Math.floor(Math.random() * 3 + 1);
-    const movement = mockedMovement.shift();
-
-    const isLeftOfRecentNodePopulated = stack[stack.length - 1].left !== null;
-    const isRightOfRecentNodePopulated = stack[stack.length - 1].right !== null;
+    console.log("=================================");
+    const movement = Math.floor(Math.random() * 3 + 1);
+    const recentNode = stack[stack.length - 1];
+    console.log("Movement: ", movement);
+    const isLeftOfRecentNodePopulated = recentNode.left !== null;
+    const isRightOfRecentNodePopulated = recentNode.right !== null;
     const isStackContainsRootOnly = stack.length === 1;
 
-    const recentNode = stack[stack.length - 1];
-
-    console.log(movement);
+    // Assign to left child of the most recent tree, if it is not populated
 
     if (movement === 1 && !isLeftOfRecentNodePopulated) {
-      console.log("Accepted 1");
       const newNode = new Node();
       newNode.tool = assignTool();
       recentNode.left = newNode;
       stack.push(newNode);
+      console.log(recentNode.left.tool, "is assigned to left child of new node.");
       assignedToolsCount += 1;
     }
 
+    // Assign to right child of the most recent tree, if it is not populated
+
     if (movement === 2 && !isRightOfRecentNodePopulated) {
-      console.log("Accepted 2");
       const newNode = new Node();
       newNode.tool = assignTool();
       recentNode.right = newNode;
       stack.push(newNode);
+      console.log(recentNode.right.tool, "is assigned to right child of new node.");
       assignedToolsCount += 1;
     }
 
+    // Skip iteration if the cursor is on the root node and it still want to backtrack
+
     if (movement === 3 && isStackContainsRootOnly) {
-      console.log("Skipped/Continued.");
+      console.log("Skipped backtracking as stack contains root only.");
       continue;
     }
 
-    const copy = [...stack];
-    copy.pop(); // Remove the recent node
-    const previousNode = copy.pop(); // Get the to be backtracked node.
+    const stackCopy = [...stack];
+    stackCopy.pop(); // Remove the recent node
+    const previousNode = stackCopy.pop(); // Get the node to be backtracked.
+
+    // Check if the children of the node to be backtracked are already occupied.
 
     if (movement === 3 && previousNode.left !== null && previousNode.right !== null) {
-      console.log("Backtrack blocked! Node children are populated.", previousNode);
+      console.log("Backtrack blocked! Node children are populated.");
       continue;
     }
 
     if (movement === 3 && !isStackContainsRootOnly) {
-      console.log("Accepted 3");
+      console.log("Backtracked.");
       stack.pop();
     }
 
-    console.log(stack[stack.length - 1]);
     console.log("Assigned Tools:", assignedToolsCount);
   }
 
@@ -115,17 +113,19 @@ function assignTool() {
   return toolsList[Math.floor(Math.random() * toolsList.length)];
 }
 
-async function start() {
-  const generated = await generateDefuseKitTree(5);
-  console.log(generated.left);
-  console.log(generated.left.left); // null
-  console.log(generated.left.right); // null
+export function getAllToolsFromTree(root) {
+  const tools = [];
 
-  console.log(generated.right);
-  console.log(generated.right.left); // null
-  console.log(generated.right.right);
-  console.log(generated.right.right.left);
-  console.log(generated.right.right.right); // null
+  function traverse(node) {
+    if (node === null) {
+      return;
+    }
+
+    tools.push(node.tool);
+    traverse(node.left);
+    traverse(node.right);
+  }
+
+  traverse(root);
+  return tools;
 }
-
-start();
