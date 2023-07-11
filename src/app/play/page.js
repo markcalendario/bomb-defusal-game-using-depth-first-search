@@ -1,68 +1,88 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import styles from "./page.module.scss";
+import { generateDefuseKitTree, getAllToolsFromTree } from "@/functions/bomb";
 
 export default function PlayCompiled() {
+  const [toolSequence, setToolSequence] = useState(null);
   const [gameState, setGameState] = useState({
     isPlanted: false,
-    isExploded: false
+    isExploded: false,
+    round: 1
   });
 
-  const plantTheBomb = () => {
+  useEffect(() => {
+    const root = generateDefuseKitTree(5);
+    setToolSequence(getAllToolsFromTree(root));
+  }, []);
+
+  const setIsBombPlanted = () => {
     setGameState((prev) => {
       return { ...prev, isPlanted: true };
     });
   };
 
   if (!gameState.isPlanted) {
-    return <ShowBombPlanting plantTheBomb={plantTheBomb} />;
+    return <ShowBombPlanting setIsBombPlanted={setIsBombPlanted} toolSequence={toolSequence} />;
   }
+
+  return <h1>asdas</h1>;
 }
 
 function ShowBombPlanting(props) {
-  const { plantTheBomb } = props;
-  const [timeLeft, setTimeLeft] = useState(3);
-
-  const playBombPlantedSFX = () => {
-    const audio = new Audio("/assets/sounds/bomb-planted.wav");
-    audio.play();
-  };
-
-  // Countdown
+  const { toolSequence, setIsBombPlanted } = props;
+  const [currentDisplayedTool, setCurrentDisplayedTool] = useState(null);
+  const [isSequenceDone, setIsSequenceDone] = useState(false);
+  const [isToolChanged, setIsToolChanged] = useState(0);
 
   useEffect(() => {
-    if (timeLeft === 0) {
-      return;
-    }
+    if (toolSequence === null) return;
 
-    const countdownInterval = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
+    const toolSet = [...toolSequence];
+
+    const toolInterval = setInterval(() => {
+      if (toolSet.length === 0) {
+        clearInterval(toolInterval);
+        setIsSequenceDone(true);
+      }
+
+      setIsToolChanged((prev) => prev + 1);
+      setCurrentDisplayedTool(toolSet.shift());
+    }, 500);
 
     return () => {
-      clearInterval(countdownInterval);
+      clearInterval(toolInterval);
     };
-  }, [timeLeft]);
-
-  // Bomb Planted
+  }, [toolSequence]);
 
   useEffect(() => {
-    if (timeLeft !== 0) {
+    if (isSequenceDone === false) {
       return;
     }
 
-    playBombPlantedSFX();
+    new Audio("/assets/sounds/bomb-planted.wav").play();
+
     setTimeout(() => {
-      plantTheBomb();
-    }, 2000);
-  }, [timeLeft]);
+      setIsBombPlanted();
+    }, 3000);
+  }, [isSequenceDone]);
+
+  if (currentDisplayedTool === null) {
+    return;
+  }
 
   return (
-    <section id={styles.countdown}>
+    <section id={styles.sequenceDisplayer}>
       <div className={styles.container}>
         <div className={styles.wrapper}>
-          {timeLeft !== 0 ? <h1>{timeLeft}</h1> : null}
-          {timeLeft === 0 ? <h1 data-aos="zoom-in">The bomb has been planted.</h1> : null}
+          {!isSequenceDone ? (
+            <div data-aos="fade-up" key={isToolChanged}>
+              <img src={`/assets/images/defuse-kit/${currentDisplayedTool}.png`} />
+              <p>{currentDisplayedTool}</p>
+            </div>
+          ) : (
+            <h1 data-aos="fade-up">The bomb has been planted.</h1>
+          )}
         </div>
       </div>
     </section>

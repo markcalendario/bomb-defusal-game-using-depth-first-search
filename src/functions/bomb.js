@@ -101,11 +101,11 @@ export function generateDefuseKitTree(toolCount) {
 
 function assignTool() {
   const toolsList = [
-    "bomb suit",
+    "bomb-suit",
     "x-ray",
     "disruptor",
-    "bolt cutter",
-    "wire cutter",
+    "bolt-cutter",
+    "wire-cutter",
     "flashlight",
     "screwdriver"
   ];

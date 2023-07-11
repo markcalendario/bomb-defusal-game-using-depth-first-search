@@ -1,10 +1,12 @@
 @use "../../styles/abstracts/variables-colors" as colors;
+@use "../../styles/layouts/responsive" as responsive;
 
-#countdown {
+#sequenceDisplayer {
   min-height: 100vh;
   background-color: colors.$slate-7;
 
   .container {
+    @include responsive.container;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -13,6 +15,13 @@
     .wrapper {
       color: colors.$slate;
       text-align: center;
+
+      img {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+        border-radius: 5px;
+      }
     }
   }
 }
