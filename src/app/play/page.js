@@ -1,19 +1,21 @@
 "use client";
-import { Fragment, useEffect, useState } from "react";
+import ToolButton from "@/components/ToolButton/ToolButton";
+import { defuseKit, generateDefuseKitTree, getAllToolsFromTree } from "@/functions/defuse-kit";
+import { useEffect, useState } from "react";
 import styles from "./page.module.scss";
-import { generateDefuseKitTree, getAllToolsFromTree } from "@/functions/bomb";
 
 export default function PlayCompiled() {
   const [toolSequence, setToolSequence] = useState(null);
   const [gameState, setGameState] = useState({
     isPlanted: false,
     isExploded: false,
+    isDefused: false,
     round: 1
   });
 
   useEffect(() => {
-    const root = generateDefuseKitTree(5);
-    setToolSequence(getAllToolsFromTree(root));
+    const rootTool = generateDefuseKitTree(5);
+    setToolSequence(getAllToolsFromTree(rootTool));
   }, []);
 
   const setIsBombPlanted = () => {
@@ -26,29 +28,41 @@ export default function PlayCompiled() {
     return <ShowBombPlanting setIsBombPlanted={setIsBombPlanted} toolSequence={toolSequence} />;
   }
 
-  return <h1>asdas</h1>;
+  if (gameState.isPlanted) {
+    return <MainGame />;
+  }
 }
 
-function ShowBombPlanting(props) {
-  const { toolSequence, setIsBombPlanted } = props;
+function ShowBombPlanting({ toolSequence, setIsBombPlanted }) {
   const [currentDisplayedTool, setCurrentDisplayedTool] = useState(null);
   const [isSequenceDone, setIsSequenceDone] = useState(false);
   const [isToolChanged, setIsToolChanged] = useState(0);
 
+  function playSound() {
+    new Audio("/assets/sounds/bomb-planted.wav").play();
+  }
+
+  function prepareGameStart() {
+    setTimeout(() => {
+      setIsBombPlanted();
+    }, 3000);
+  }
+
   useEffect(() => {
+    // This effect is responsible for displaying a kit sequence.
     if (toolSequence === null) return;
 
-    const toolSet = [...toolSequence];
+    const toolSetQueue = [...toolSequence];
 
     const toolInterval = setInterval(() => {
-      if (toolSet.length === 0) {
+      setCurrentDisplayedTool(toolSetQueue.shift()); // dequeue the first tool
+      setIsToolChanged((prev) => prev + 1); // responsible for animating sequence
+
+      if (toolSetQueue.length === 0) {
         clearInterval(toolInterval);
         setIsSequenceDone(true);
       }
-
-      setIsToolChanged((prev) => prev + 1);
-      setCurrentDisplayedTool(toolSet.shift());
-    }, 500);
+    }, 2000);
 
     return () => {
       clearInterval(toolInterval);
@@ -56,35 +70,66 @@ function ShowBombPlanting(props) {
   }, [toolSequence]);
 
   useEffect(() => {
-    if (isSequenceDone === false) {
-      return;
-    }
+    if (isSequenceDone === false) return;
 
-    new Audio("/assets/sounds/bomb-planted.wav").play();
-
-    setTimeout(() => {
-      setIsBombPlanted();
-    }, 3000);
+    playSound();
+    prepareGameStart();
   }, [isSequenceDone]);
 
-  if (currentDisplayedTool === null) {
-    return;
-  }
+  const displayTool = () => {
+    return (
+      <ToolButton
+        key={isToolChanged}
+        imageLink={currentDisplayedTool.image}
+        toolName={currentDisplayedTool.name}
+      />
+    );
+  };
+
+  const displayGuide = (text) => {
+    return <h1 data-aos="zoom-out">{text}</h1>;
+  };
 
   return (
-    <section id={styles.sequenceDisplayer}>
+    <section data-aos="fade-up" id={styles.sequenceDisplayer}>
       <div className={styles.container}>
         <div className={styles.wrapper}>
-          {!isSequenceDone ? (
-            <div data-aos="fade-up" key={isToolChanged}>
-              <img src={`/assets/images/defuse-kit/${currentDisplayedTool}.png`} />
-              <p>{currentDisplayedTool}</p>
-            </div>
-          ) : (
-            <h1 data-aos="fade-up">The bomb has been planted.</h1>
-          )}
+          {isSequenceDone ? displayGuide("The bomb has been planted.") : null}
+          {!isSequenceDone && currentDisplayedTool !== null ? displayTool() : null}
+          {!isSequenceDone && currentDisplayedTool === null
+            ? displayGuide("Follow this defuse kit sequence.")
+            : null}
         </div>
       </div>
+    </section>
+  );
+}
+
+function MainGame() {
+  const displayTools = () => {
+    return defuseKit.map((tool, index) => (
+      <ToolButton key={index} imageLink={tool.image} toolName={tool.name} />
+    ));
+  };
+
+  return (
+    <section id={styles.mainGame}>
+      <div className={styles.level}>Level 1</div>
+      <div className={styles.bombDisplay}>
+        <div className={styles.bomb}>
+          <div className={styles.timer}>
+            <h2>00:00:10</h2>
+            <p>Time Left</p>
+          </div>
+          <div className={styles.controls}>
+            <div className={styles.defuseScreen}></div>
+            <div className={styles.detonate}>
+              <p>Detonate</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className={styles.defuseKit}>{displayTools()}</div>
     </section>
   );
 }

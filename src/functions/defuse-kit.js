@@ -99,18 +99,42 @@ export function generateDefuseKitTree(toolCount) {
   return rootNode;
 }
 
-function assignTool() {
-  const toolsList = [
-    "bomb-suit",
-    "x-ray",
-    "disruptor",
-    "bolt-cutter",
-    "wire-cutter",
-    "flashlight",
-    "screwdriver"
-  ];
+export const defuseKit = [
+  { id: 1, name: "Bomb Suit", image: "/assets/images/defuse-kit/bomb-suit.png" },
+  {
+    id: 2,
+    name: "X-ray",
+    image: "/assets/images/defuse-kit/x-ray.png"
+  },
+  {
+    id: 3,
+    name: "Disruptor",
+    image: "/assets/images/defuse-kit/disruptor.png"
+  },
+  {
+    id: 4,
+    name: "Bolt Cutter",
+    image: "/assets/images/defuse-kit/bolt-cutter.png"
+  },
+  {
+    id: 5,
+    name: "Wire Cutter",
+    image: "/assets/images/defuse-kit/wire-cutter.png"
+  },
+  {
+    id: 6,
+    name: "Flashlight",
+    image: "/assets/images/defuse-kit/flashlight.png"
+  },
+  {
+    id: 7,
+    name: "Screwdriver",
+    image: "/assets/images/defuse-kit/screwdriver.png"
+  }
+];
 
-  return toolsList[Math.floor(Math.random() * toolsList.length)];
+function assignTool() {
+  return defuseKit[Math.floor(Math.random() * defuseKit.length)];
 }
 
 export function getAllToolsFromTree(root) {

@@ -1,6 +1,6 @@
 @font-face {
-  font-family: m12;
-  src: url("/assets/fonts/m12.ttf");
+  font-family: Arcade;
+  src: url("/assets/fonts/Arcade.TTF");
 }
 
 p,
@@ -9,7 +9,6 @@ a {
 }
 
 * {
-  letter-spacing: 2px;
   line-height: 1.25;
-  font-family: m12, Arial, Helvetica, sans-serif;
+  font-family: Arcade, Arial, Helvetica, sans-serif;
 }
