@@ -20,7 +20,7 @@ export default function PlayCompiled() {
   });
 
   const generateToolKit = () => {
-    const rootTool = generateDefuseKitTree(5);
+    const rootTool = generateDefuseKitTree(5 + gameState.level - 1);
     setToolSequence(getAllToolsFromTree(rootTool));
   };
 
@@ -50,7 +50,7 @@ export default function PlayCompiled() {
         ...prev,
         isDefused: true,
         level: prev.level + 1,
-        timerLength: prev.timerLength - 1
+        timerLength: prev.timerLength - 2
       };
     });
   };
@@ -73,17 +73,13 @@ export default function PlayCompiled() {
   };
 
   const handleNextLevel = () => {
-    generateDefuseKitTree(5 + gameState.level);
+    generateToolKit();
     setGameState({ ...gameState, isPlanted: true, isExploded: false, isDefused: false });
   };
 
   useEffect(() => {
-    console.log(toolSequence);
-  }, [toolSequence]);
-
-  useEffect(() => {
     if (toolSequence === null) return;
-    console.log(toolSequence.length);
+
     if (toolSequence.length === 0) setBombDefused();
   }, [toolSequence]);
 
