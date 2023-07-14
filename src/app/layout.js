@@ -13,7 +13,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   useEffect(() => {
-    AOS.init();
+    AOS.init({
+      easing: "ease-out-back"
+    });
   }, []);
 
   return (
