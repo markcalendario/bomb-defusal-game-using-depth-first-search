@@ -137,7 +137,7 @@ function assignTool() {
   return defuseKit[Math.floor(Math.random() * defuseKit.length)];
 }
 
-export function getAllToolsFromTree(root) {
+export function getAllToolsFromGeneratedKitTree(root) {
   const tools = [];
 
   function traverse(node) {
