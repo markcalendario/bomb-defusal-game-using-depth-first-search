@@ -8,7 +8,7 @@ const MainGameContext = createContext();
 const DefuseKitSequenceContext = createContext();
 
 export default function PlayCompiled() {
-  const gameAudio = useRef(new Audio("/assets/sounds/playing.mp3"));
+  const gameAudio = useRef(new Audio());
   const [toolSequence, setToolSequence] = useState(null);
   const [isSelectedCorrect, setIsSelectedCorrect] = useState(null);
   const [gameState, setGameState] = useState({
@@ -30,24 +30,19 @@ export default function PlayCompiled() {
     });
   };
 
-  const isSelectedToolCorrect = (isCorrect) => {
-    setIsSelectedCorrect(isCorrect);
-
-    setTimeout(() => {
-      setIsSelectedCorrect(null);
-    }, 500);
-  };
-
   const setBombExploded = () => {
+    playAudio("/assets/sounds/explosion.wav");
     setGameState((prev) => {
-      return { ...prev, isExploded: true };
+      return { ...prev, isPlanted: false, isExploded: true };
     });
   };
 
   const setBombDefused = () => {
+    playAudio("/assets/sounds/defused.wav");
     setGameState((prev) => {
       return {
         ...prev,
+        isPlanted: false,
         isDefused: true,
         level: prev.level + 1,
         timerLength: prev.timerLength - 2
@@ -56,25 +51,37 @@ export default function PlayCompiled() {
   };
 
   const handleUserSelectTool = (toolID) => {
-    if (toolID === toolSequence[0].id) {
-      setToolSequence((prev) => {
-        prev.shift();
-        return [...prev];
-      });
-
-      return isSelectedToolCorrect(true);
+    if (toolID !== toolSequence[0].id) {
+      setBombExploded();
+      return;
     }
 
-    isSelectedToolCorrect(false);
+    setToolSequence((prev) => {
+      prev.shift();
+      return [...prev];
+    });
 
+    setIsSelectedCorrect(true);
+    new Audio("/assets/sounds/correct.wav").play();
+
+    // Remove the blinker
     setTimeout(() => {
-      setBombExploded();
-    }, 500);
+      setIsSelectedCorrect(null);
+    }, 100);
   };
 
   const handleNextLevel = () => {
     generateToolKit();
-    setGameState({ ...gameState, isPlanted: true, isExploded: false, isDefused: false });
+    setGameState({ ...gameState, isPlanted: false, isExploded: false, isDefused: false });
+  };
+
+  const playAudio = (audio, simultaneous = false) => {
+    if (!simultaneous) {
+      gameAudio.current.pause();
+    }
+
+    gameAudio.current = new Audio(audio);
+    gameAudio.current.play();
   };
 
   useEffect(() => {
@@ -87,13 +94,14 @@ export default function PlayCompiled() {
     generateToolKit();
   }, []);
 
-  if (!gameState.isPlanted) {
+  if (!gameState.isPlanted && !gameState.isExploded && !gameState.isDefused) {
     return (
       <DefuseKitSequenceContext.Provider
         value={{
           setIsDoneShowingToolsSequence,
           toolSequence,
-          gameAudio
+          gameAudio,
+          playAudio
         }}>
         <ShowDefuseKitSequence />
       </DefuseKitSequenceContext.Provider>
@@ -103,13 +111,13 @@ export default function PlayCompiled() {
   if (gameState.isPlanted && !gameState.isExploded && !gameState.isDefused) {
     return (
       <MainGameContext.Provider
-        value={{ gameState, handleUserSelectTool, isSelectedCorrect, setBombExploded }}>
+        value={{ gameState, handleUserSelectTool, isSelectedCorrect, setBombExploded, playAudio }}>
         <MainGame />
       </MainGameContext.Provider>
     );
   }
 
-  if (gameState.isExploded) {
+  if (gameState.isExploded && !gameState.isPlanted) {
     return <h1>Exploded.</h1>;
   }
 
@@ -124,11 +132,15 @@ export default function PlayCompiled() {
 }
 
 function ShowDefuseKitSequence() {
-  const { toolSequence, setIsDoneShowingToolsSequence, gameAudio } =
+  const { toolSequence, setIsDoneShowingToolsSequence, gameAudio, playAudio } =
     useContext(DefuseKitSequenceContext);
   const [currentDisplayedTool, setCurrentDisplayedTool] = useState(null);
   const [isToolChanged, setIsToolChanged] = useState(0);
   const [isSequenceDone, setIsSequenceDone] = useState(false);
+
+  useEffect(() => {
+    playAudio("/assets/sounds/tool-sequence.wav");
+  }, []);
 
   useEffect(() => {
     if (toolSequence === null) return;
@@ -145,7 +157,7 @@ function ShowDefuseKitSequence() {
       setIsToolChanged((prev) => prev + 1);
     };
 
-    const toolInterval = setInterval(displayNextTool, 500);
+    const toolInterval = setInterval(displayNextTool, 1000);
 
     return () => {
       clearInterval(toolInterval);
@@ -154,11 +166,11 @@ function ShowDefuseKitSequence() {
 
   useEffect(() => {
     if (isSequenceDone === false) return;
-    gameAudio.current.play();
+    playAudio("/assets/sounds/playing.mp3");
     setTimeout(() => {
       setIsDoneShowingToolsSequence();
     }, 3000);
-  }, [isSequenceDone, gameAudio, setIsDoneShowingToolsSequence]);
+  }, [isSequenceDone, setIsDoneShowingToolsSequence]);
 
   const displayTool = () => {
     return (
@@ -257,11 +269,7 @@ function MainGame() {
             <div
               className={styles.defuseScreen}
               style={{
-                backgroundColor: isSelectedCorrect
-                  ? "green"
-                  : isSelectedCorrect === false
-                  ? "red"
-                  : null
+                backgroundColor: isSelectedCorrect ? "green" : null
               }}></div>
             <div className={styles.detonate}>
               <p>Detonate</p>
