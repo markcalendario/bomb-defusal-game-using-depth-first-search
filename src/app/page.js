@@ -53,13 +53,8 @@ function Game() {
     isDefused: false,
     isGameCompleted: false,
     level: 1,
-    timerLength: 15
+    timerLength: 20
   });
-
-  const generateToolKit = useCallback(() => {
-    const rootTool = generateDefuseKitTree(5 + gameState.level - 1);
-    setToolSequence(getAllToolsFromGeneratedKitTree(rootTool));
-  }, [gameState.level]);
 
   const setPlanted = () => {
     setGameState((prev) => {
@@ -90,18 +85,30 @@ function Game() {
     });
   }, [playAudio]);
 
+  const checkIsGameCompleted = useCallback(() => {
+    const MAX_LEVEL = 5;
+
+    if (gameState.level === MAX_LEVEL) {
+      setGameState((prev) => {
+        return {
+          ...prev,
+          isGameCompleted: true
+        };
+      });
+    }
+  }, [gameState.level]);
+
   const setBombDefused = useCallback(() => {
     playAudio("/assets/sounds/defused.wav");
     setGameState((prev) => {
       return {
         ...prev,
         isPlanted: false,
-        isDefused: true,
-        level: prev.level + 1,
-        timerLength: prev.timerLength - 2
+        isDefused: true
       };
     });
-  }, [playAudio]);
+    checkIsGameCompleted();
+  }, [playAudio, checkIsGameCompleted]);
 
   const dequeueTool = () => {
     setToolSequence((prev) => {
@@ -110,15 +117,20 @@ function Game() {
     });
   };
 
-  const handleNextLevel = () => {
-    generateToolKit();
-    setGameState({
-      ...gameState,
-      isPlanted: false,
-      isExploded: false,
-      isDefused: false
+  const handleNextLevel = useCallback(() => {
+    setGameState((prev) => {
+      return {
+        ...prev,
+        isPlanted: false,
+        isExploded: false,
+        isDefused: false,
+        level: prev.level + 1,
+        timerLength: prev.timerLength - 2
+      };
     });
-  };
+
+    setToolSequence(null);
+  }, []);
 
   useEffect(() => {
     if (toolSequence === null) return;
@@ -126,8 +138,19 @@ function Game() {
   }, [toolSequence, setBombDefused]);
 
   useEffect(() => {
-    generateToolKit();
-  }, [generateToolKit]);
+    const rootTool = generateDefuseKitTree(5 + gameState.level - 1);
+    const tools = getAllToolsFromGeneratedKitTree(rootTool);
+    console.log("Solution:", tools);
+    setToolSequence(tools);
+  }, [gameState.level]);
+
+  if (gameState.isGameCompleted) {
+    return (
+      <GameStateContext.Provider value={gameState}>
+        <Completed />
+      </GameStateContext.Provider>
+    );
+  }
 
   if (gameState.isExploded) {
     return (
@@ -411,6 +434,33 @@ function Defused({ handleNextLevel }) {
           <div className={styles.buttons}>
             <Button onClick={handleNextLevel}>Next Level</Button>
             <Button onClick={handleExit}>Exit</Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Completed() {
+  const gameState = useContext(GameStateContext);
+
+  const handlePlayAgain = () => {
+    window.location.reload();
+  };
+
+  return (
+    <section id={styles.defused}>
+      <div className={styles.container}>
+        <div className={styles.wrapper}>
+          <div data-aos="zoom-out" className={styles.texts}>
+            <h1>You completed the game.</h1>
+            <p>You are a bomb expert!</p>
+          </div>
+          <div className={styles.status}>
+            <p>Level: {gameState.level}</p>
+          </div>
+          <div className={styles.buttons}>
+            <Button onClick={handlePlayAgain}>Play Again</Button>
           </div>
         </div>
       </div>
