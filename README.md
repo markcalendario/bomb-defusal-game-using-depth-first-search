@@ -12,7 +12,7 @@ A bomb-defusing game using the depth first traversal algorithm. A final project 
 
 ## Copyright Notice
 
-Copyright © Mark Kenneth S. Calendario. All rights reserved.
+Copyright © Mark Kenneth S. Calendario; John Race Levardo; Zoe Tatianna Ong; Gwyneth Anmarie Yim. All rights reserved.
 
 This code is protected by the copyright law. No part of this system may be reproduced, distributed, or transmitted in any form or by any means, without the prior written permission of the copyright holder.
 
