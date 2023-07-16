@@ -132,17 +132,21 @@ function Game() {
     setToolSequence(null);
   }, []);
 
+  const generateToolKit = useCallback(() => {
+    const rootTool = generateDefuseKitTree(5 + gameState.level - 1);
+    const tools = getAllToolsFromGeneratedKitTree(rootTool);
+    console.log("Solution:", tools);
+    setToolSequence(tools);
+  }, [gameState.level]);
+
   useEffect(() => {
     if (toolSequence === null) return;
     if (toolSequence.length === 0) setBombDefused();
   }, [toolSequence, setBombDefused]);
 
   useEffect(() => {
-    const rootTool = generateDefuseKitTree(5 + gameState.level - 1);
-    const tools = getAllToolsFromGeneratedKitTree(rootTool);
-    console.log("Solution:", tools);
-    setToolSequence(tools);
-  }, [gameState.level]);
+    generateToolKit();
+  }, [generateToolKit]);
 
   if (gameState.isGameCompleted) {
     return (
