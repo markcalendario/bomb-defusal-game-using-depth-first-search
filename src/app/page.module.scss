@@ -4,8 +4,13 @@
 @use "../styles/layouts/responsive" as responsive;
 
 #welcome {
+  background-image: url("/assets/images/welcome.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
   background-color: colors.$slate-9;
   min-height: 100vh;
+
   .container {
     @include responsive.container;
     min-height: 100vh;
@@ -43,7 +48,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     .wrapper {
       color: colors.$slate;
       text-align: center;
@@ -212,4 +217,3 @@
     }
   }
 }
-

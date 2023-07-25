@@ -433,7 +433,7 @@ function Defused({ handleNextLevel }) {
             <p>You have successfully defused the bomb.</p>
           </div>
           <div className={styles.status}>
-            <p>Next level: {gameState.level}</p>
+            <p>Next level: {gameState.level + 1}</p>
           </div>
           <div className={styles.buttons}>
             <Button onClick={handleNextLevel}>Next Level</Button>
