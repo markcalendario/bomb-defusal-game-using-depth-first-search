@@ -7,7 +7,8 @@ class Node {
 /**
  * @param {number} toolCount - number of tools shall the tree generate
  *
- * This loop generates a random tree, where each node is a tool for defusing a bomb
+ * This loop generates a random tree, where each node is a tool for defusing a
+ * bomb
  * During generation, it uses a randomize legend for a cursor's movement.
  * The cursor will determine where the node will be placed in a tree.
  *
@@ -55,7 +56,10 @@ export function generateDefuseKitTree(toolCount) {
       newNode.tool = assignTool();
       recentNode.left = newNode;
       stack.push(newNode);
-      console.log(recentNode.left.tool, "is assigned to left child of new node.");
+      console.log(
+        recentNode.left.tool,
+        "is assigned to left child of new node."
+      );
       assignedToolsCount += 1;
     }
 
@@ -66,7 +70,10 @@ export function generateDefuseKitTree(toolCount) {
       newNode.tool = assignTool();
       recentNode.right = newNode;
       stack.push(newNode);
-      console.log(recentNode.right.tool, "is assigned to right child of new node.");
+      console.log(
+        recentNode.right.tool,
+        "is assigned to right child of new node."
+      );
       assignedToolsCount += 1;
     }
 
@@ -83,7 +90,11 @@ export function generateDefuseKitTree(toolCount) {
 
     // Check if the children of the node to be backtracked are already occupied.
 
-    if (movement === 3 && previousNode.left !== null && previousNode.right !== null) {
+    if (
+      movement === 3 &&
+      previousNode.left !== null &&
+      previousNode.right !== null
+    ) {
       console.log("Backtrack blocked! Node children are populated.");
       continue;
     }
@@ -100,7 +111,11 @@ export function generateDefuseKitTree(toolCount) {
 }
 
 export const defuseKit = [
-  { id: 1, name: "Bomb Suit", image: "/assets/images/defuse-kit/bomb-suit.png" },
+  {
+    id: 1,
+    name: "Bomb Suit",
+    image: "/assets/images/defuse-kit/bomb-suit.png"
+  },
   {
     id: 2,
     name: "X-ray",

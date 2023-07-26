@@ -246,7 +246,10 @@ function ShowDefuseKitSequence({ playAudio, setPlanted }) {
 
   const displayGuide = (text) => {
     return (
-      <div className={styles.bigText} data-aos="fade-right" data-aos-duration="500">
+      <div
+        className={styles.bigText}
+        data-aos="fade-right"
+        data-aos-duration="500">
         <h1 data-aos="flip-up" data-aos-delay="600">
           {text}
         </h1>

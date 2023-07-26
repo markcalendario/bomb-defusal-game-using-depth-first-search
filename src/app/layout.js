@@ -1,9 +1,9 @@
 "use client";
 
-import "../styles/main.scss";
-import "aos/dist/aos.css";
 import AOS from "aos";
+import "aos/dist/aos.css";
 import { useEffect } from "react";
+import "../styles/main.scss";
 
 export const metadata = {
   title: "Defuse Da Bomb",
